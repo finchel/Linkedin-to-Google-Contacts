@@ -1,0 +1,36 @@
+# Example files containing personal data
+examples/
+**/examples/
+
+# HTML files with personal information
+*.html.txt
+*LinkedIn html*.txt
+*Google contact html*.txt
+
+# Screenshots with personal information
+*Screenshot*.jpg
+*Screenshot*.png
+*.jpg
+*.png
+*:Zone.Identifier
+
+# Log files
+*.log
+*.txt
+
+# Node modules
+node_modules/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+temp/
+tmp/
