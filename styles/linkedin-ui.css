@@ -1,0 +1,70 @@
+/* LinkedIn UI integration styles */
+
+/* Hide the extension container from page styling */
+#linkedin-contacts-extension {
+  all: initial !important;
+  position: relative !important;
+  display: inline-block !important;
+  margin-left: 8px !important;
+  z-index: 9999 !important;
+}
+
+/* Ensure LinkedIn's styles don't interfere with our shadow DOM */
+#linkedin-contacts-extension * {
+  box-sizing: border-box !important;
+}
+
+/* Override any potential conflicts with LinkedIn's CSS reset */
+#linkedin-contacts-extension button {
+  all: unset !important;
+  display: inline-block !important;
+  cursor: pointer !important;
+}
+
+/* LinkedIn profile page adjustments */
+.pv-top-card-v2-ctas #linkedin-contacts-extension {
+  margin-left: 8px !important;
+}
+
+.pv-top-card__cta-container #linkedin-contacts-extension {
+  margin-left: 8px !important;
+}
+
+.artdeco-card .pv-top-card-v2-section__actions #linkedin-contacts-extension {
+  margin-left: 8px !important;
+}
+
+/* Responsive adjustments for different screen sizes */
+@media (max-width: 768px) {
+  #linkedin-contacts-extension {
+    margin-left: 4px !important;
+    margin-top: 8px !important;
+    width: 100% !important;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  #linkedin-contacts-extension {
+    outline: 2px solid #000000 !important;
+    outline-offset: 2px !important;
+  }
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  #linkedin-contacts-extension *,
+  #linkedin-contacts-extension *::before,
+  #linkedin-contacts-extension *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Print styles - hide extension button when printing */
+@media print {
+  #linkedin-contacts-extension {
+    display: none !important;
+  }
+}

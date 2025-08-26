@@ -1,0 +1,76 @@
+{
+  "manifest_version": 3,
+  "name": "LinkedIn to Google Contacts Sync",
+  "version": "1.0.0",
+  "description": "Sync LinkedIn profile information to your Google Contacts using existing browser sessions",
+
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+
+  "background": {
+    "service_worker": "service-worker.js"
+  },
+
+  "content_scripts": [
+    {
+      "matches": ["https://*.linkedin.com/*"],
+      "js": ["content-scripts/linkedin-extractor.js"],
+      "css": ["styles/linkedin-ui.css"],
+      "run_at": "document_idle",
+      "all_frames": false,
+      "world": "ISOLATED"
+    },
+    {
+      "matches": ["https://contacts.google.com/*"],
+      "js": ["content-scripts/google-contacts-updater.js"],
+      "css": ["styles/google-contacts-ui.css"],
+      "run_at": "document_idle",
+      "all_frames": false,
+      "world": "ISOLATED"
+    }
+  ],
+
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png"
+    },
+    "default_title": "LinkedIn to Contacts Sync"
+  },
+
+  "permissions": [
+    "storage",
+    "activeTab",
+    "scripting",
+    "tabs"
+  ],
+
+  "host_permissions": [
+    "https://*.linkedin.com/*",
+    "https://contacts.google.com/*"
+  ],
+
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "icons/*.png",
+        "styles/*.css"
+      ],
+      "matches": [
+        "https://*.linkedin.com/*",
+        "https://contacts.google.com/*"
+      ]
+    }
+  ],
+
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self';"
+  },
+
+  "minimum_chrome_version": "120"
+}

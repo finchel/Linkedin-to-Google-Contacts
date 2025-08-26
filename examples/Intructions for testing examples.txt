@@ -1,0 +1,9 @@
+The examples folder includes the following files you can use for automatic testing of information extraction from LinkedIn, and destination fields in Google Contacts:
+'Daniel Finchelstein Google contact html.txt' - the HTML you can use to check you find the correct destination fields in Google Contacts
+'Daniel Finchelstein LinkedIn html.txt' - the HTML you can use to check you find the correct source fields in LinkedIn
+
+'Daniel Finchelstein LinkedIn html_with Contact Info.txt'  - the HTML you can use to check you find the correct source contact info fields in LinkedIn 
+'Screenshot_LinkedIn with Contact Info_Chrome.jpg' - the image you can use to check you find the correct source contact info fields in LinkedIn
+ contacts.google.com_person_c6974320240114122432.png - the image you can use to check you find the correct destination fields in Google Contacts
+
+ www.linkedin.com_in_finchel_.png -  - the image you can use to check you find the correct source fields in LinkedIn
