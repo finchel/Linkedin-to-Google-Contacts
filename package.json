@@ -1,0 +1,39 @@
+{
+  "name": "linkedin-to-google-contacts",
+  "version": "1.0.0",
+  "description": "Chrome extension to sync LinkedIn profiles to Google Contacts",
+  "main": "service-worker.js",
+  "scripts": {
+    "test": "node validate-extension.js && node test-enhanced-email-extraction.js && node test-phone-validation.js",
+    "test:extraction": "node test-enhanced-email-extraction.js",
+    "test:validation": "node test-phone-validation.js",
+    "test:extension": "node validate-extension.js",
+    "validate": "node validate-extension.js",
+    "update-check": "npm outdated",
+    "update": "npm update",
+    "pack": "zip -r extension.zip manifest.json service-worker.js content-scripts/ popup/ icons/ styles/ utils/ -x '*.DS_Store'"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/finchel/Linkedin-to-Google-Contacts.git"
+  },
+  "keywords": [
+    "chrome-extension",
+    "linkedin",
+    "google-contacts",
+    "contact-management",
+    "productivity"
+  ],
+  "author": "finchel",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/finchel/Linkedin-to-Google-Contacts/issues"
+  },
+  "homepage": "https://github.com/finchel/Linkedin-to-Google-Contacts#readme",
+  "devDependencies": {
+    "jsdom": "^24.0.0"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
