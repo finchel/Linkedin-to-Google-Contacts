@@ -39,9 +39,9 @@ function isValidEmail(email) {
 
 console.log('🧪 Testing specific problematic phone number...');
 console.log('1756214583859 valid?', isValidPhone('1756214583859'));
-console.log('0524797107 valid?', isValidPhone('0524797107'));
+console.log('0521234567 valid?', isValidPhone('0521234567'));
 console.log('555-123-4567 valid?', isValidPhone('555-123-4567'));
 
 console.log('\n🧪 Testing email validation...');
-console.log('adamffrank@gmail.com valid?', isValidEmail('adamffrank@gmail.com'));
+console.log('user@example.com valid?', isValidEmail('user@example.com'));
 console.log('noreply@linkedin.com valid?', isValidEmail('noreply@linkedin.com'));

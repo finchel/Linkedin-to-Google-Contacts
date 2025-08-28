@@ -9,8 +9,8 @@ Successfully enhanced the LinkedIn Contact Info popup email extraction using ins
 ### **Key Findings from Examples:**
 - **Contact Info Button**: `id="top-card-text-details-contact-info"` with `href="/overlay/contact-info/"`
 - **Modal Structure**: `.artdeco-modal-overlay` → `.artdeco-modal[role="dialog"]` → Contact sections
-- **Email Section**: `.pv-contact-info__contact-type` with header "Email" and `href="mailto:finchel@gmail.com"`
-- **Phone Section**: `.pv-contact-info__contact-type` with header "Phone" and text `0524797107`
+- **Email Section**: `.pv-contact-info__contact-type` with header "Email" and `href="mailto:user@example.com"`
+- **Phone Section**: `.pv-contact-info__contact-type` with header "Phone" and text `0521234567`
 - **Website Section**: `.pv-contact-info__contact-type` with header "Website" and link `calendly.com/daniel-mile`
 
 ## 🔧 **Comprehensive Improvements Implemented**
@@ -88,7 +88,7 @@ const closeSelectors = [
 ### **Automated Testing Results:**
 ```
 📧 Email validation tests:
-   ✅ finchel@gmail.com: valid
+   ✅ user@example.com: valid
    ❌ noreply@linkedin.com: invalid (correctly filtered)
    ❌ invalid-email: invalid (correctly rejected)
    

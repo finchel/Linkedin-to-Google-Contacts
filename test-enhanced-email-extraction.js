@@ -217,7 +217,7 @@ async function runTests() {
     console.log('\n🧪 Testing Enhanced Extraction...');
     const profile = {
       fullName: 'Adam Frank',
-      url: 'https://www.linkedin.com/in/adamffrank/'
+      url: 'https://www.linkedin.com/in/example-user/'
     };
     
     const result = extractContactInfoFromModal(profile, modal);
@@ -226,7 +226,7 @@ async function runTests() {
     console.log('\n📊 EXTRACTION TEST RESULTS:');
     console.log('============================');
     
-    const expectedEmail = 'adamffrank@gmail.com';
+    const expectedEmail = 'user@example.com';
     const expectedPhone = null; // Adam Frank has no phone in contact info
     const expectedWebsite = null; // Adam Frank has no website in contact info
     
@@ -296,7 +296,7 @@ if (require.main === module) {
     
     // Test email validation
     const testEmails = [
-      'finchel@gmail.com', // should pass
+      'user@example.com', // should pass
       'noreply@linkedin.com', // should fail
       'invalid-email', // should fail
       'user@example.com' // should fail

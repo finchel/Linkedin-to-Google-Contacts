@@ -259,21 +259,26 @@ Each data extraction uses multiple fallback selectors:
 
 ## 🤝 Contributing
 
-We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
+We welcome contributions! Please see our [Development Guidelines](DEVELOPMENT.md) for details.
 
 ### Development Setup
 1. Fork the repository
 2. Create a feature branch
 3. Make your changes
-4. Test thoroughly
+4. Test thoroughly (see DEVELOPMENT.md)
 5. Submit a pull request
+
+### ⚠️ CRITICAL: Data Privacy
+**NEVER commit personal data, profile examples, or screenshots to the repository.**
+All profile examples and vetted data must remain in the separate `LinkedInProfileExamples` folder.
 
 ### Code Standards
 - Follow existing code style
 - Add comprehensive error handling
 - Include user-friendly error messages
-- Test on different LinkedIn profile types
+- Test on different LinkedIn profile types (using separate examples folder)
 - Ensure accessibility compliance
+- Never log or store personal information in committed code
 
 ## 📄 License
 
