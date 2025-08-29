@@ -33,14 +33,24 @@ function extractProfileSimple() {
     profile.headline = headlineElement.textContent.trim();
     console.log('✅ Found headline:', profile.headline.substring(0, 50) + '...');
     
-    // Extract job title from headline (removing disclaimers and extra text)
-    const jobTitleMatch = profile.headline.match(/^([^-–—•|]+)/);
-    if (jobTitleMatch) {
-      profile.jobTitle = jobTitleMatch[1].trim();
-      console.log('✅ Extracted job title:', profile.jobTitle);
-    } else {
-      profile.jobTitle = profile.headline;
+    // Extract job title from headline - handle compound titles like "Co-Founder"
+    // Only split on separators that indicate multiple roles
+    let jobTitle = profile.headline;
+    
+    // Look for clear role separators (but not hyphens within words)
+    const titleMatch = profile.headline.match(/^([^|•]+?)(?:\s*[|•]|$)/);
+    if (titleMatch) {
+      jobTitle = titleMatch[1].trim();
+      
+      // If we have "Role at Company", extract just the role
+      const atMatch = jobTitle.match(/^(.+?)\s+(?:at|@)\s+/i);
+      if (atMatch) {
+        jobTitle = atMatch[1].trim();
+      }
     }
+    
+    profile.jobTitle = jobTitle;
+    console.log('✅ Extracted job title:', profile.jobTitle);
   } else {
     console.log('❌ Headline not found');
   }
@@ -312,34 +322,34 @@ function extractVisibleContactInfo(profile) {
     }
   }
   
-  // Look for phone numbers in visible text
-  const phonePattern = /[\+]?[1-9][\d\s\-\(\)\.]{9,}/g;
-  const phones = pageText.match(phonePattern);
-  if (phones && phones.length > 0) {
-    // Filter out obviously non-phone numbers
-    const validPhones = phones.filter(phone => {
-      const digits = phone.replace(/\D/g, '');
-      return digits.length >= 10 && digits.length <= 15;
-    });
-    
-    if (validPhones.length > 0) {
-      profile.phone = validPhones[0].trim();
-      console.log('✅ Found visible phone:', profile.phone);
-    }
-  }
+  // **DISABLED**: Don't search entire page text for phone numbers
+  // This was causing extraction of random IDs, timestamps, and garbage data
+  // Only extract phones from structured contact sections (Contact Info modal)
+  console.log('⚠️ Skipping page-wide phone search to avoid extracting garbage data');
+  console.log('📱 Phone numbers will only be extracted from Contact Info sections');
   
   // Look for website links in visible content
   const websitePattern = /https?:\/\/[^\s\)]+/g;
   const websites = pageText.match(websitePattern);
   if (websites && websites.length > 0) {
-    // Filter out LinkedIn URLs and common non-personal sites
-    const personalSites = websites.filter(url => 
-      !url.includes('linkedin.com') &&
-      !url.includes('facebook.com') &&
-      !url.includes('twitter.com') &&
-      !url.includes('instagram.com') &&
-      !url.includes('youtube.com')
-    );
+    // Filter out LinkedIn URLs, social media, shortlinks, and event platforms
+    const personalSites = websites.filter(url => {
+      const urlLower = url.toLowerCase();
+      // Exclude social media, shortlinks, and event platforms
+      return !urlLower.includes('linkedin.com') &&
+             !urlLower.includes('lnkd.in') && // LinkedIn shortlinks
+             !urlLower.includes('facebook.com') &&
+             !urlLower.includes('twitter.com') &&
+             !urlLower.includes('instagram.com') &&
+             !urlLower.includes('youtube.com') &&
+             !urlLower.includes('bit.ly') && // URL shorteners
+             !urlLower.includes('tinyurl.com') &&
+             !urlLower.includes('calendly.com') && // Event platforms
+             !urlLower.includes('lu.ma') &&
+             !urlLower.includes('eventbrite.com') &&
+             !urlLower.includes('meetup.com') &&
+             !urlLower.includes('zoom.us');
+    });
     
     if (personalSites.length > 0) {
       profile.website = personalSites[0];
@@ -540,7 +550,7 @@ function extractContactInfoFromModal(profile, modal = null) {
         const websiteLinks = section.querySelectorAll('a[href]:not([href^="mailto:"])');
         for (const link of websiteLinks) {
           const url = link.href;
-          if (url && !url.includes('linkedin.com') && !url.includes('javascript:') && isValidWebsite(url)) {
+          if (url && !url.includes('linkedin.com') && !url.includes('lnkd.in') && !url.includes('javascript:') && isValidWebsite(url)) {
             profile.website = url;
             console.log('✅ Website extracted from link:', profile.website);
             break;
@@ -629,8 +639,14 @@ function isValidEmail(email) {
 function isValidWebsite(url) {
   if (!url || typeof url !== 'string') return false;
   
-  // Filter out LinkedIn and other social media URLs
-  const blacklist = ['linkedin.com', 'facebook.com', 'twitter.com', 'instagram.com', 'youtube.com', 'tiktok.com', 'snapchat.com'];
+  // Filter out LinkedIn, social media, URL shorteners, and event platforms
+  const blacklist = [
+    'linkedin.com', 'lnkd.in', // LinkedIn and its shortlinks
+    'facebook.com', 'twitter.com', 'instagram.com', 'youtube.com', 'tiktok.com', 'snapchat.com',
+    'bit.ly', 'tinyurl.com', 'ow.ly', 'buff.ly', // URL shorteners
+    'calendly.com', 'lu.ma', 'eventbrite.com', 'meetup.com', 'zoom.us', // Event platforms
+    'teams.microsoft.com', 'whereby.com', 'meet.google.com' // Meeting platforms
+  ];
   const urlLower = url.toLowerCase();
   
   if (blacklist.some(term => urlLower.includes(term))) {
@@ -646,6 +662,18 @@ function isValidWebsite(url) {
   }
 }
 
+// Helper function to validate US area codes
+function isValidUSAreaCode(areaCode) {
+  const code = parseInt(areaCode);
+  // Valid US area codes: 201-999, but exclude N11 patterns
+  if (code < 201 || code > 999) return false;
+  if (areaCode.endsWith('11')) return false; // Exclude 211, 311, 411, etc.
+  
+  // Common invalid/test area codes
+  const invalidCodes = ['555', '000', '001', '999'];
+  return !invalidCodes.includes(areaCode);
+}
+
 // Helper function to validate phone numbers - very strict to avoid false matches
 function isValidPhone(phone) {
   if (!phone || typeof phone !== 'string') return false;
@@ -654,9 +682,47 @@ function isValidPhone(phone) {
   
   // **STRICT VALIDATION**: Reject obviously invalid numbers
   
-  // Must be 10-12 digits
-  if (cleaned.length < 10 || cleaned.length > 12) {
+  // Must be 7-15 digits (international phone range)
+  if (cleaned.length < 7 || cleaned.length > 15) {
+    console.log('⚠️ Rejecting phone - invalid length:', cleaned.length);
     return false;
+  }
+  
+  // Reject timestamps (13+ digits that look like Unix timestamps)
+  if (cleaned.length >= 13) {
+    const asNumber = parseInt(cleaned);
+    const currentTimestamp = Date.now();
+    const yearInMs = 365 * 24 * 60 * 60 * 1000;
+    
+    if (asNumber > 946684800000 && asNumber < currentTimestamp + (10 * yearInMs)) {
+      console.log('⚠️ Rejecting phone - detected as timestamp:', cleaned);
+      return false;
+    }
+  }
+  
+  // US phone number validation (1 + area code + 7 digits)
+  if (cleaned.length === 10 && cleaned.startsWith('1')) {
+    // This is actually 9 digits with leading 1 - invalid US format
+    console.log('⚠️ Rejecting phone - invalid US format (10 digits starting with 1):', cleaned);
+    return false;
+  }
+  
+  if (cleaned.length === 11 && cleaned.startsWith('1')) {
+    const areaCode = cleaned.substring(1, 4);
+    if (!isValidUSAreaCode(areaCode)) {
+      console.log('⚠️ Rejecting phone - invalid US area code:', areaCode);
+      return false;
+    }
+  }
+  
+  // Reject numbers that are clearly not phones (like Ohad's 1852884267)
+  if (cleaned.length === 10 && cleaned.startsWith('1')) {
+    const potentialAreaCode = cleaned.substring(0, 3);
+    // 185 is not a valid area code
+    if (!isValidUSAreaCode(potentialAreaCode)) {
+      console.log('⚠️ Rejecting phone - looks like ID/timestamp, not valid area code:', potentialAreaCode);
+      return false;
+    }
   }
   
   // Reject numbers that are clearly not phone numbers
