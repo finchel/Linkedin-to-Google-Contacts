@@ -2,6 +2,9 @@
 
 This document outlines comprehensive testing procedures to ensure the extension works reliably across different scenarios and edge cases.
 
+## ⚠️ IMPORTANT: Testing Best Practices
+**See [LESSONS-LEARNED.md](./LESSONS-LEARNED.md#testing-best-practices) for critical testing methodology and real-world test data management practices.**
+
 ## 🧪 Pre-Testing Setup
 
 ### Environment Requirements

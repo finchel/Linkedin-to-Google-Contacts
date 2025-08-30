@@ -236,11 +236,23 @@ Each data extraction uses multiple fallback selectors:
 - **Session Dependent**: Requires active login sessions
 - **Rate Limits**: Respects LinkedIn and Google's rate limiting
 
+### Recently Fixed Issues (v1.1.0)
+- ✅ **Phone Number Extraction**: Fixed timestamp/ID extraction bug, now validates US area codes and prioritizes international numbers with + prefix
+- ✅ **Job Title Parsing**: Fixed truncation of compound titles like "Co-Founder & Staff Engineer"
+- ✅ **Website Extraction**: Fixed initialization bug preventing website capture, filters event platforms (calendly, lu.ma) and shortlinks
+- ✅ **International Phone Support**: Added support for international phone numbers with country codes
+- ✅ **Data Validation**: Added comprehensive validation to prevent garbage data extraction
+
 ### Known Issues
 - Some LinkedIn profiles with heavy restrictions may not sync completely
 - Google Contacts UI changes may require extension updates
 - Large profile photos may take time to download
 - Mobile view compatibility is limited
+
+### Developer Resources
+- **[LESSONS-LEARNED.md](./LESSONS-LEARNED.md)**: Critical bug fixes, debugging methodology, and best practices
+- **[DEVELOPMENT.md](./DEVELOPMENT.md)**: Development guidelines and security practices
+- **[TESTING.md](./TESTING.md)**: Comprehensive testing procedures
 
 ## 🛣️ Roadmap
 

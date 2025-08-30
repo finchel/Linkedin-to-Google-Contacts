@@ -5,6 +5,36 @@ All notable changes to the LinkedIn to Google Contacts extension will be documen
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2025-08-30
+
+### Fixed
+- **Critical Bug**: Fixed website extraction initialization - profile object now properly initializes email, phone, and website fields
+- **Phone Validation**: Fixed extraction of timestamps/IDs as phone numbers (e.g., "1756388157552")
+- **Phone Validation**: Added US area code validation - rejects invalid codes (185, 555, N11 patterns)
+- **International Phone**: Added support for international numbers with + prefix prioritization
+- **Job Title Parsing**: Fixed truncation of compound titles (e.g., "Co-Founder & Staff Engineer" no longer becomes "Co")
+- **Website Filtering**: Added filtering for event platforms (calendly.com, lu.ma) and LinkedIn shortlinks (lnkd.in)
+- **Website Extraction**: Fixed extraction of complex subdomains (e.g., ai-accountant-boost.lovable.app)
+
+### Added
+- Comprehensive test suite with 21 test cases (95% pass rate)
+- International phone number testing and validation
+- Timestamp detection to prevent garbage phone numbers
+- Enhanced website validation with blacklist approach
+- Test data management with LinkedInProfileExamples folder
+- LESSONS-LEARNED.md documentation for development best practices
+
+### Changed
+- Updated analyze-examples.js to use LinkedInProfileExamples folder instead of removed examples/
+- Improved phone extraction patterns for international formats
+- Enhanced job title regex to preserve hyphens in compound words
+- Refined website extraction with multiple fallback methods
+
+### Developer Notes
+- **Critical Learning**: Always verify data accuracy before implementation (see LESSONS-LEARNED.md)
+- **Testing**: Use real-world test data from LinkedInProfileExamples folder
+- **Validation**: Implement comprehensive validation at extraction time, not just display time
+
 ## [1.0.0] - 2024-12-26
 
 ### Added

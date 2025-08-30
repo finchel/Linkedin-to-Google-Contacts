@@ -1,5 +1,8 @@
 # Development Guidelines
 
+## ⚠️ CRITICAL: Read Before Development
+**MUST READ:** See [LESSONS-LEARNED.md](./LESSONS-LEARNED.md) for critical development practices, common pitfalls, and debugging methodology learned from real bug fixes.
+
 ## 🚨 CRITICAL: Data Privacy and Security
 
 ### Personal Data Handling
