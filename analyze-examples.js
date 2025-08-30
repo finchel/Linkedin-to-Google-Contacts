@@ -36,8 +36,8 @@ class HTMLAnalyzer {
     console.log('🔗 LINKEDIN PROFILE ANALYSIS');
     console.log('============================\n');
 
-    const linkedinPath = path.join(__dirname, 'examples', 'Daniel Finchelstein LinkedIn html.txt');
-    const linkedinContactsPath = path.join(__dirname, 'examples', 'Daniel Finchelstein LinkedIn html_with Contact Info.txt');
+    const linkedinPath = path.join(__dirname, '../LinkedInProfileExamples', 'Daniel Finchelstein LinkedIn html.txt');
+    const linkedinContactsPath = path.join(__dirname, '../LinkedInProfileExamples', 'Daniel Finchelstein LinkedIn html_with Contact Info.txt');
 
     try {
       const basicHTML = fs.readFileSync(linkedinPath, 'utf8');
@@ -174,7 +174,7 @@ class HTMLAnalyzer {
     console.log('\n👥 GOOGLE CONTACTS ANALYSIS');
     console.log('===========================\n');
 
-    const contactsPath = path.join(__dirname, 'examples', 'Daniel Finchelstein Google contact html.txt');
+    const contactsPath = path.join(__dirname, '../LinkedInProfileExamples', 'Daniel Finchelstein Google contact html.txt');
 
     try {
       const contactsHTML = fs.readFileSync(contactsPath, 'utf8');

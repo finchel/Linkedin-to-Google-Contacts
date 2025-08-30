@@ -11,7 +11,10 @@ function extractProfileSimple() {
   
   const profile = {
     url: window.location.href,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+    email: '',
+    phone: '',
+    website: ''
   };
   
   // Get name from main h1 (confirmed working)
@@ -515,28 +518,63 @@ function extractContactInfoFromModal(profile, modal = null) {
       // Phone Section Processing  
       else if (headerText.toLowerCase().includes('phone')) {
         console.log('📱 Processing phone section...');
+        console.log('📝 Section text:', sectionText);
         
-        // Look for phone number in section text - be very specific to avoid false matches
-        const phonePatterns = [
-          /\+\d{1,3}[\s\-]?\(?\d{1,4}\)?[\s\-]?\d{1,4}[\s\-]?\d{1,9}/g, // International
-          /\(\d{3}\)[\s\-]?\d{3}[\s\-]?\d{4}/g, // US format (555) 555-5555
-          /\d{3}[\s\-]?\d{3}[\s\-]?\d{4}/g, // US format 555-555-5555
-          /\b\d{10,12}\b/g // Simple digit sequences (more restrictive: 10-12 digits only)
-        ];
+        // Method 1: Look for phone links (tel:)
+        const phoneLinks = section.querySelectorAll('a[href^="tel:"]');
+        if (phoneLinks.length > 0) {
+          const phoneFromLink = phoneLinks[0].textContent.trim();
+          console.log('📞 Found phone link:', phoneFromLink);
+          if (phoneFromLink && isValidPhone(phoneFromLink)) {
+            profile.phone = phoneFromLink;
+            console.log('✅ Phone extracted from tel link:', profile.phone);
+          }
+        }
         
-        for (const pattern of phonePatterns) {
-          const phones = sectionText.match(pattern);
-          if (phones && phones.length > 0) {
-            const cleanPhone = phones[0].trim();
-            const digits = cleanPhone.replace(/\D/g, '');
-            
-            // **STRICTER VALIDATION**: Only accept reasonable phone number lengths
-            if (digits.length >= 10 && digits.length <= 12 && isValidPhone(cleanPhone)) {
-              profile.phone = cleanPhone;
-              console.log('✅ Phone extracted from section:', profile.phone);
-              break;
-            } else {
-              console.log('⚠️ Rejected invalid phone candidate:', cleanPhone, 'digits:', digits.length);
+        // Method 2: Look for phone number patterns in text
+        if (!profile.phone) {
+          // Enhanced patterns - prioritize numbers starting with +
+          const phonePatterns = [
+            /\+\d{1,4}[\s\-]?\d{6,12}/g, // International with + (like +972 526164030)
+            /\+\d{1,3}[\s\-]?\(?\d{1,4}\)?[\s\-]?\d{1,4}[\s\-]?\d{1,9}/g, // International flexible
+            /\(\d{3}\)[\s\-]?\d{3}[\s\-]?\d{4}/g, // US format (555) 555-5555
+            /\b\d{3}[\s\-]?\d{3}[\s\-]?\d{4}\b/g, // US format 555-555-5555
+            /\b05\d{1}[\s\-]?\d{3}[\s\-]?\d{4}\b/g // Israeli mobile
+          ];
+          
+          for (const pattern of phonePatterns) {
+            const phones = sectionText.match(pattern);
+            if (phones && phones.length > 0) {
+              // Prioritize numbers starting with + as they're more likely real
+              const sortedPhones = phones.sort((a, b) => {
+                if (a.startsWith('+') && !b.startsWith('+')) return -1;
+                if (!a.startsWith('+') && b.startsWith('+')) return 1;
+                return 0;
+              });
+              
+              for (const phone of sortedPhones) {
+                const cleanPhone = phone.trim();
+                const digits = cleanPhone.replace(/\D/g, '');
+                
+                console.log('🔍 Checking phone candidate:', cleanPhone, 'digits:', digits.length);
+                
+                // More lenient for international numbers with +
+                if (cleanPhone.startsWith('+')) {
+                  // International numbers can be 7-15 digits
+                  if (digits.length >= 7 && digits.length <= 15) {
+                    profile.phone = cleanPhone;
+                    console.log('✅ International phone extracted:', profile.phone);
+                    break;
+                  }
+                } else if (digits.length >= 10 && digits.length <= 12 && isValidPhone(cleanPhone)) {
+                  profile.phone = cleanPhone;
+                  console.log('✅ Phone extracted from section:', profile.phone);
+                  break;
+                } else {
+                  console.log('⚠️ Rejected phone candidate:', cleanPhone, 'digits:', digits.length);
+                }
+              }
+              if (profile.phone) break;
             }
           }
         }
@@ -545,6 +583,7 @@ function extractContactInfoFromModal(profile, modal = null) {
       // Website Section Processing
       else if (headerText.toLowerCase().includes('website')) {
         console.log('🌐 Processing website section...');
+        console.log('📝 Section text:', sectionText);
         
         // Method 1: Extract from href attributes
         const websiteLinks = section.querySelectorAll('a[href]:not([href^="mailto:"])');
@@ -557,15 +596,54 @@ function extractContactInfoFromModal(profile, modal = null) {
           }
         }
         
-        // Method 2: Extract from text content
+        // Method 2: Look for any link text that might be a website
         if (!profile.website) {
-          const websitePattern = /https?:\/\/[^\s\)\]\}\"\']+/g;
-          const websites = sectionText.match(websitePattern);
-          if (websites && websites.length > 0) {
-            const validWebsite = websites.find(url => isValidWebsite(url));
-            if (validWebsite) {
-              profile.website = validWebsite;
-              console.log('✅ Website extracted from section text:', profile.website);
+          const allLinks = section.querySelectorAll('a');
+          for (const link of allLinks) {
+            const linkText = link.textContent.trim();
+            // Check if the link text looks like a domain
+            if (linkText && linkText.includes('.') && !linkText.includes('@')) {
+              // Add https:// if not present
+              const url = linkText.startsWith('http') ? linkText : 'https://' + linkText;
+              if (isValidWebsite(url)) {
+                profile.website = url;
+                console.log('✅ Website extracted from link text:', profile.website);
+                break;
+              }
+            }
+          }
+        }
+        
+        // Method 3: Extract from text content with flexible patterns
+        if (!profile.website) {
+          // Look for URLs with or without protocol
+          const websitePatterns = [
+            /https?:\/\/[^\s\)\]\}\"\']+/g,  // With protocol
+            /(?:^|\s)([a-zA-Z0-9][a-zA-Z0-9-_]*\.)*[a-zA-Z0-9][a-zA-Z0-9-_]*\.[a-zA-Z]{2,11}(?:\/[^\s]*)?/g  // Domain patterns
+          ];
+          
+          for (const pattern of websitePatterns) {
+            const websites = sectionText.match(pattern);
+            if (websites && websites.length > 0) {
+              for (let website of websites) {
+                website = website.trim();
+                // Skip if it's an email
+                if (website.includes('@')) continue;
+                // Skip common non-website text
+                if (website === 'Aug 26' || website === 'Sep 16' || website.includes('..')) continue;
+                
+                // Add https:// if not present
+                if (!website.startsWith('http')) {
+                  website = 'https://' + website;
+                }
+                
+                if (isValidWebsite(website)) {
+                  profile.website = website;
+                  console.log('✅ Website extracted from section text:', profile.website);
+                  break;
+                }
+              }
+              if (profile.website) break;
             }
           }
         }
@@ -680,7 +758,19 @@ function isValidPhone(phone) {
   
   const cleaned = phone.replace(/\D/g, '');
   
-  // **STRICT VALIDATION**: Reject obviously invalid numbers
+  // **SPECIAL HANDLING FOR + PREFIX**: Numbers starting with + are likely real
+  if (phone.trim().startsWith('+')) {
+    // International numbers with + are usually legitimate
+    // Accept 7-15 digits for international
+    if (cleaned.length >= 7 && cleaned.length <= 15) {
+      console.log('✅ Valid international phone with +:', phone);
+      return true;
+    }
+    console.log('⚠️ Rejecting + number with invalid length:', cleaned.length);
+    return false;
+  }
+  
+  // **STRICT VALIDATION FOR NON-+ NUMBERS**: Reject obviously invalid numbers
   
   // Must be 7-15 digits (international phone range)
   if (cleaned.length < 7 || cleaned.length > 15) {
@@ -716,11 +806,18 @@ function isValidPhone(phone) {
   }
   
   // Reject numbers that are clearly not phones (like Ohad's 1852884267)
-  if (cleaned.length === 10 && cleaned.startsWith('1')) {
-    const potentialAreaCode = cleaned.substring(0, 3);
-    // 185 is not a valid area code
-    if (!isValidUSAreaCode(potentialAreaCode)) {
-      console.log('⚠️ Rejecting phone - looks like ID/timestamp, not valid area code:', potentialAreaCode);
+  // Check US numbers more carefully
+  if (cleaned.length === 10) {
+    // 10-digit number could be US without country code
+    const firstThree = cleaned.substring(0, 3);
+    // US area codes start with 2-9, not 0 or 1
+    if (cleaned.startsWith('1') || cleaned.startsWith('0')) {
+      console.log('⚠️ Rejecting 10-digit number starting with 0 or 1:', cleaned);
+      return false;
+    }
+    // Check if it's a valid US area code
+    if (!isValidUSAreaCode(firstThree)) {
+      console.log('⚠️ Rejecting phone - invalid US area code:', firstThree);
       return false;
     }
   }
